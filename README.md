@@ -639,5 +639,5 @@ I added a simple code to my usual bar graphs which is the .legend function. This
 
 ![image](https://github.com/user-attachments/assets/c1391a60-df75-49c4-bf84-abe1b0e53331)
 
-Adding this makes things show clearly. This graph also indicates how spotify trully dominates the streaming platform since majority are blue. The Weekend dominated 2023, followed by Ed Sheeran and Taylor Swift. 
+Adding this makes things show clearly. This graph also indicates how spotify trully dominates the streaming platform since majority are blue. The Weekend dominated 2023, followed by Ed Sheeran and Taylor Swift. These are pop musicians stating how pop music are peoples favorite genre by a landslide. 
 
