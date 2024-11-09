@@ -500,20 +500,144 @@ Graph:
 
 In this graph we can see that spotify playlists still reigns supreme in terms of having top songs in most of their users playlist. In an interesting turn of events, deezer beats apple having roughtly 1000 - 3000 instances in which top songs are featured in playlists. Apple performes poorly with an IQR of 300 to 490. This indicates that people tend to create playlists more on spotify and deezer than apple.
 
+----
 
 ## Part 7: Advance Analysis
 
-Experience: Upon initial trial of the code, I noticed that 
+Experience: Upon initial trial of the code, I noticed that C is missing from the list of keys charted. I then looked at the database and saw that there are missing values. A quick google search shows me that these missing values on these songs are supposed to be in the key of C. For this problem, I fixed it using:
 
 ```
 # Replaces missing values with the key of C
 spd['key'] = spd['key'].replace("", "C")
 spd['key'] = spd['key'].fillna("C")
+
+# Tests if it works
 spd.loc[spd['track_name'] =='Flowers']
 
 ```
+Where flowers is my test if the code works, knowing that it is from the key of C. 
+
+### Based on the streams data, can you identify any patterns among tracks with the same key or mode (Major vs. Minor)?
+
+In processing this, I first need to group them based on their key
+
+```
+# Groups the Streams per key using the group by function 
+streams_per_key = spd.groupby('key')['streams'].sum()
+streams_per_key
+```
+This uses the groupby function which groups the values in the same key and adds them together. This gives an insanely large numbers of:
+key
+A     3.025426e+10
+A#    3.149110e+10
+B     4.206718e+10
+C     4.951329e+10 - previously missing
+C#    7.251363e+10
+D     4.289157e+10
+D#    1.825021e+10
+E     3.580483e+10
+F     4.169173e+10
+F#    3.813251e+10
+G     4.344954e+10
+G#    4.339898e+10
 
 
+Since these numbers are confusing, I graphed it:
+
+```
+# Increase the figure size
+fig9 = plt.figure(figsize=(15, 6)) 
+ax = fig9.add_subplot(111)
+
+# Plots the histogram 
+streams_per_key.plot(kind = 'bar')
+plt.title('Relationship of Streams to Keys')
+
+# Adds label to the x axis 
+plt.ylabel('Number of Tracks')
+plt.xlabel('Month')
+plt.show()
+
+```
+![image](https://github.com/user-attachments/assets/8a7dfbbe-69f5-4812-a7e5-25a0d1db7431)
+
+This graph is interesting because it shows that most successful songs used C# as the key. Followed by C, D, and B, we can say that if you want a song that becomes successful, you might look at this keys for inspiration. This also shows the importance of filling out the missing information earlier. We see the success of C key we filled out, which would not have been prevalent if I hadn't included it. 
 
 
+Similarly
+```
+# Similar to what I did in keys, I grouped the modes. 
+streams_per_mode = spd.groupby('mode')['streams'].sum()
+streams_per_mode
+
+# Increase the figure size
+fig10 = plt.figure(figsize=(15, 6)) 
+ax = fig10.add_subplot(111)
+
+# Plots the histogram 
+streams_per_mode.plot(kind = 'bar')
+plt.title('Relationship of Streams to mode')
+
+# Adds label to the x  and y axis 
+plt.ylabel('Number of streams')
+plt.xlabel('Mode')
+plt.show()
+
+
+```
+I used the same methods, and this gives the results:
+Major    2.936232e+11
+Minor    1.958356e+11
+
+![image](https://github.com/user-attachments/assets/156bbbea-cfee-44ca-aa1f-4f4ae57e5de0)
+
+This shows that people tend to like song in Major modes. Major keys are often quirky and outgoing, hence this can indicate that lively songs are more favorable in the general public. 
+
+### Do certain genres or artists consistently appear in more playlists or charts? Perform an analysis to compare the most frequently appearing artists in playlists or charts.
+
+```
+# Groups artist by name and only get the column of spotify, apple, deezer, and shazam 's playlists and charts
+ArtChart = spd.groupby('artist(s)_name')[['in_spotify_playlists', 'in_spotify_charts', 'in_apple_playlists', 'in_apple_charts',	'in_deezer_playlists', 'in_deezer_charts', 'in_shazam_charts']].sum()
+ArtChart
+```
+
+For this, I created a df containing showing only artiststs using the groupby function, and only show their appearances in famous charts and playlists in platforms. Each artists row are initially separated, hence .sum() is needed. 
+
+The analysis requires a collective information on all platforms hence:
+```
+# Adds the number of appearances of each artists
+ArtChart['total_appearances'] = ArtChart.sum(axis=1)
+```
+
+I created a new column where their total appearances are shown. However, since the top artist is the range required by the question, I created another dataframe only showing the top artists
+
+```
+#Sorts to show only the top 10 artists
+top10A = ArtChart.sort_values('total_appearances', ascending=False).head(10)
+top10A
+```
+which gives these values:
+
+![image](https://github.com/user-attachments/assets/cc1f50c9-eb1c-4499-b986-685db3372e7f)
+
+Collectively, these are difficult to look at, hence I graph them with a little extra...
+
+```
+# Graphs the value, enabling stacking for better readability
+top10A[['in_spotify_playlists', 'in_spotify_charts', 'in_apple_playlists','in_apple_charts','in_deezer_playlists', 'in_deezer_charts','in_shazam_charts']].plot(kind='bar', stacked=True, figsize=(12, 8))
+
+# Adds legends and labels cause why not
+plt.title("Top 10 Artists in Playlist/Chart Appearances")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+```
+
+I added a simple code to my usual bar graphs which is the .legend function. This indicates which part of the total percentage is shown and at what platform. 
+
+
+![image](https://github.com/user-attachments/assets/c1391a60-df75-49c4-bf84-abe1b0e53331)
+
+Adding this makes things show clearly. This graph also indicates how spotify trully dominates the streaming platform since majority are blue. The Weekend dominated 2023, followed by Ed Sheeran and Taylor Swift. 
 
